@@ -1,7 +1,7 @@
 # Crash Log
-crash.log
+# .gitignore
 
-.node_modules
+/node_modules
 
 package-lock.json
 
