@@ -51,6 +51,8 @@
     <span class="dot" onclick="currentSlide(2)"></span>
   </div>
 
+
+
   <!-- Header -->
   <header class="flex items-center mb-8">
     <img src="img/logo-hidropol.png" alt="Logo Hydroponic" class="w-20 h-20 object-contain">
@@ -71,36 +73,36 @@
     </div>
 
     <!-- Grid panel -->
-    <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+    <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
       <div class="bg-gray-100 p-4 rounded-lg text-center hover:bg-gray-200 transition-colors">
         <i class="fas fa-temperature-high text-3xl text-red-500"></i>
         <div class="text-gray-600 mt-2">Suhu Air</div>
-        <div class="text-2xl font-bold temperature-value">34°C</div>
+        <div class="text-2xl font-bold temperature-value"><span id="suhuAir" class="value">-</span></div>
       </div>
       <div class="bg-gray-100 p-4 rounded-lg text-center hover:bg-gray-200 transition-colors">
         <i class="fas fa-flask text-3xl text-blue-500"></i>
         <div class="text-gray-600 mt-2">Nutrisi</div>
-        <div class="text-2xl font-bold nutrition-value">1320 ppm</div>
+        <div class="text-2xl font-bold nutrition-value"><span id="nutrisi" class="value">-</span> ppm</div>
       </div>
       <div class="bg-gray-100 p-4 rounded-lg text-center hover:bg-gray-200 transition-colors">
         <i class="fas fa-ruler-vertical text-3xl text-green-500"></i>
         <div class="text-gray-600 mt-2">Tinggi</div>
-        <div class="text-2xl font-bold height-value">12 cm</div>
+        <div class="text-2xl font-bold height-value"><span id="tinggi" class="value">-</span> cm</div>
       </div>
       <div class="bg-gray-100 p-4 rounded-lg text-center hover:bg-gray-200 transition-colors">
         <i class="fas fa-tint text-3xl text-purple-500"></i>
         <div class="text-gray-600 mt-2">Air Ph</div>
-        <div class="text-2xl font-bold ph-value">6.0</div>
+        <div class="text-2xl font-bold ph-value"><span id="pH" class="value">-</span></div>
       </div>
       <div class="bg-gray-100 p-4 rounded-lg text-center hover:bg-gray-200 transition-colors">
         <i class="fas fa-sun text-3xl text-yellow-500"></i>
         <div class="text-gray-600 mt-2">Sinar UV</div>
-        <div class="text-2xl font-bold uv-value">On</div>
+        <div class="text-2xl font-bold uv-value"><span id="uV" class="value">-</span></div>
       </div>
       <div class="bg-gray-100 p-4 rounded-lg text-center hover:bg-gray-200 transition-colors">
         <i class="fas fa-temperature-high text-3xl text-red-500"></i>
         <div class="text-gray-600 mt-2">Suhu Udara</div>
-        <div class="text-2xl font-bold temperature-value">34°C</div>
+        <div class="text-2xl font-bold temperature-value"><span id="suhuUdara" class="value">-</span> °C</div>
       </div>
     </div>
   </section>

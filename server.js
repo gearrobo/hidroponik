@@ -38,8 +38,8 @@ async function initializeDatabase() {
             CREATE TABLE IF NOT EXISTS device_value (
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 device_id INT,
-                suhu FLOAT,
-                kelembaban FLOAT,
+                suhuAir FLOAT,
+                suhuUdara FLOAT,
                 nutrisi FLOAT,
                 tinggi FLOAT,
                 pH FLOAT,
@@ -56,8 +56,8 @@ async function initializeDatabase() {
             CREATE TABLE IF NOT EXISTS log_sensor (
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 device_id INT,
-                suhu FLOAT,
-                kelembaban FLOAT,
+                suhuAir FLOAT,
+                suhuUdara FLOAT,
                 nutrisi FLOAT,
                 tinggi FLOAT,
                 pH FLOAT,
@@ -123,12 +123,12 @@ app.post('/api/data', async (req, res) => {
             deviceId = result.insertId;
 
             await connection.execute(`
-                INSERT INTO device_value (device_id, suhu, kelembaban, nutrisi, tinggi, pH, uV, status, latitude, longitude)
+                INSERT INTO device_value (device_id, suhuAir, suhuUdara, nutrisi, tinggi, pH, uV, status, latitude, longitude)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             `, [
                 deviceId,
-                safe(data.suhu),
-                safe(data.kelembaban),
+                safe(data.suhuAir),
+                safe(data.suhuUdara),
                 safe(data.nutrisi),
                 safe(data.tinggi),
                 safe(data.pH),
@@ -139,15 +139,35 @@ app.post('/api/data', async (req, res) => {
             ]);
         } else {
             deviceId = devices[0].id;
+
+            // Langsung update device_value tanpa validasi
+            await connection.execute(`
+                UPDATE device_value 
+                SET suhuAir = ?, suhuUdara = ?, nutrisi = ?, tinggi = ?, pH = ?, 
+                    uV = ?, status = ?, latitude = ?, longitude = ?
+                WHERE device_id = ?
+            `, [
+                safe(data.suhuAir),
+                safe(data.suhuUdara),
+                safe(data.nutrisi),
+                safe(data.tinggi),
+                safe(data.pH),
+                safe(data.uV),
+                safe(data.status),
+                safe(data.latitude),
+                safe(data.longitude),
+                deviceId
+            ]);
         }
 
+        // Insert log_sensor untuk semua data
         await connection.execute(`
-            INSERT INTO log_sensor (device_id, suhu, kelembaban, nutrisi, tinggi, pH, uV, status, latitude, longitude)
+            INSERT INTO log_sensor (device_id, suhuAir, suhuUdara, nutrisi, tinggi, pH, uV, status, latitude, longitude)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `, [
             deviceId,
-            safe(data.suhu),
-            safe(data.kelembaban),
+            safe(data.suhuAir),
+            safe(data.suhuUdara),
             safe(data.nutrisi),
             safe(data.tinggi),
             safe(data.pH),
@@ -155,24 +175,6 @@ app.post('/api/data', async (req, res) => {
             safe(data.status),
             safe(data.latitude),
             safe(data.longitude)
-        ]);
-
-        await connection.execute(`
-            UPDATE device_value 
-            SET suhu = ?, kelembaban = ?, nutrisi = ?, tinggi = ?, pH = ?, 
-                uV = ?, status = ?, latitude = ?, longitude = ?
-            WHERE device_id = ?
-        `, [
-            safe(data.suhu),
-            safe(data.kelembaban),
-            safe(data.nutrisi),
-            safe(data.tinggi),
-            safe(data.pH),
-            safe(data.uV),
-            safe(data.status),
-            safe(data.latitude),
-            safe(data.longitude),
-            deviceId
         ]);
 
         res.json({ success: true });
@@ -234,6 +236,7 @@ app.get('/api/history/:serial_number', async (req, res) => {
         if (connection) connection.release();
     }
 });
+
 
 // Endpoint ambil status relay
 app.get('/api/relay/:serial_number', async (req, res) => {
