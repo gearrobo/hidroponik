@@ -160,6 +160,31 @@ app.post('/api/data', async (req, res) => {
             ]);
         }
 
+        const [thresholds] = await connection.execute(
+            'SELECT * FROM device_value WHERE device_id = ?',
+            [deviceId]
+        );
+
+        if (thresholds.length > 0) {
+            const t = thresholds[0];
+            if (t.threshold_min_tinggi != null && t.threshold_max_tinggi != null) {
+                if (data.tinggi < t.threshold_min_tinggi || data.tinggi > t.threshold_max_tinggi) {
+                    await connection.execute(`
+                        INSERT INTO log_alert (device_id, parameter, value, threshold_min, threshold_max)
+                        VALUES (?, 'tinggi', ?, ?, ?)
+                    `, [deviceId, data.tinggi, t.threshold_min_tinggi, t.threshold_max_tinggi]);
+                }
+            }
+            if (t.threshold_min_ph != null && t.threshold_max_ph != null) {
+                if (data.pH < t.threshold_min_ph || data.pH > t.threshold_max_ph) {
+                    await connection.execute(`
+                        INSERT INTO log_alert (device_id, parameter, value, threshold_min, threshold_max)
+                        VALUES (?, 'pH', ?, ?, ?)
+                    `, [deviceId, data.pH, t.threshold_min_ph, t.threshold_max_ph]);
+                }
+            }
+        }
+
         // Insert log_sensor untuk semua data
         await connection.execute(`
             INSERT INTO log_sensor (device_id, suhuAir, suhuUdara, nutrisi, tinggi, pH, uV, status, latitude, longitude)
@@ -307,6 +332,125 @@ app.post('/api/relay/:serial_number', async (req, res) => {
         if (connection) connection.release();
     }
 });
+
+// Endpoint untuk simpan threshold
+app.post('/api/threshold/:serial_number', async (req, res) => {
+    const {
+      threshold_min_ph,
+      threshold_max_ph,
+      threshold_min_tinggi,
+      threshold_max_tinggi
+    } = req.body;
+  
+    let connection;
+  
+    try {
+      connection = await pool.getConnection();
+  
+      // Ambil device_id dari tabel device
+      const [devices] = await connection.execute(
+        'SELECT id FROM device WHERE serial_number = ?',
+        [req.params.serial_number]
+      );
+  
+      if (devices.length === 0) {
+        return res.status(404).json({ error: 'Device not found' });
+      }
+  
+      const deviceId = devices[0].id;
+  
+      // Cek apakah data device_value sudah ada
+      const [existing] = await connection.execute(
+        'SELECT * FROM device_value WHERE device_id = ?',
+        [deviceId]
+      );
+  
+      if (existing.length > 0) {
+        // Update jika sudah ada
+        await connection.execute(`
+          UPDATE device_value
+          SET
+            threshold_min_ph = ?,
+            threshold_max_ph = ?,
+            threshold_min_tinggi = ?,
+            threshold_max_tinggi = ?
+          WHERE device_id = ?
+        `, [
+          threshold_min_ph,
+          threshold_max_ph,
+          threshold_min_tinggi,
+          threshold_max_tinggi,
+          deviceId
+        ]);
+      } else {
+        // Insert jika belum ada
+        await connection.execute(`
+          INSERT INTO device_value (
+            device_id,
+            threshold_min_ph,
+            threshold_max_ph,
+            threshold_min_tinggi,
+            threshold_max_tinggi
+          )
+          VALUES (?, ?, ?, ?, ?)
+        `, [
+          deviceId,
+          threshold_min_ph,
+          threshold_max_ph,
+          threshold_min_tinggi,
+          threshold_max_tinggi
+        ]);
+      }
+  
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error saving threshold:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    } finally {
+      if (connection) connection.release();
+    }
+  });
+  
+  // Jalankan server
+  const PORT = process.env.PORT || 7001;
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+
+// Endpoint tampilkan 5 log alert terbaru
+app.get('/api/alerts/:serial_number', async (req, res) => {
+    let connection;
+    try {
+        connection = await pool.getConnection();
+
+        const [devices] = await connection.execute(
+            'SELECT id FROM device WHERE serial_number = ?',
+            [req.params.serial_number]
+        );
+
+        if (devices.length === 0) {
+            return res.status(404).json({ error: 'Device not found' });
+        }
+
+        const deviceId = devices[0].id;
+
+        const [alerts] = await connection.execute(`
+            SELECT parameter, value, threshold_min, threshold_max, created_at
+            FROM log_alert
+            WHERE device_id = ?
+            ORDER BY created_at DESC
+            LIMIT 5
+        `, [deviceId]);
+
+        res.json(alerts);
+    } catch (error) {
+        console.error('Error fetching alert logs:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    } finally {
+        if (connection) connection.release();
+    }
+});
+
 
 // Mulai Server
 initializeDatabase().then(() => {

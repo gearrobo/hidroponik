@@ -127,6 +127,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   };
 
+  
   // === Live Data + Relay Logic ===
   const serialNumber = 'ESP32-001'; // fallback
   const API_BASE_URL = 'http://localhost:7001';
