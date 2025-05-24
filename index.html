@@ -107,18 +107,34 @@
     </div>
   </section>
 
-  <!-- Kalender Panen
-  <section class="bg-white p-6 rounded-xl shadow-lg w-full max-w-5xl mb-8">
-    <h2 class="text-center text-lg font-semibold mb-6">Calender Panen</h2>
-    <div class="grid grid-cols-2 gap-4">
-      <button onclick="openHarvestModal('Senin')" class="bg-blue-900 text-white py-3 rounded-lg hover:bg-blue-800">Senin</button>
-      <button onclick="openHarvestModal('Selasa')" class="bg-blue-900 text-white py-3 rounded-lg hover:bg-blue-800">Selasa</button>
-      <button onclick="openHarvestModal('Rabu')" class="bg-blue-900 text-white py-3 rounded-lg hover:bg-blue-800">Rabu</button>
-      <button onclick="openHarvestModal('Kamis')" class="bg-blue-900 text-white py-3 rounded-lg hover:bg-blue-800">Kamis</button>
-      <button onclick="openHarvestModal('Jumat')" class="bg-blue-900 text-white py-3 rounded-lg hover:bg-blue-800">Jumat</button>
-      <button onclick="openHarvestModal('Sabtu')" class="bg-blue-900 text-white py-3 rounded-lg hover:bg-blue-800">Sabtu</button>
+
+
+<!-- Kontrol Pompa & Lampu -->
+<section class="bg-white p-6 rounded-xl shadow-lg w-full max-w-5xl mb-8">
+  <h2 class="text-2xl font-semibold mb-6 text-center">Kontrol Pompa dan Lampu</h2>
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+    
+    <div class="flex flex-col items-center">
+      <img id="pumpStatusIcon" src="img/pump-off.png" class="w-16 mb-2" />
+      <div>
+        <button onclick="setRelay('pompa', 0)" class="bg-green-500 text-white px-3 py-1 rounded">ON</button>
+        <button onclick="setRelay('pompa', 1)" class="bg-red-500 text-white px-3 py-1 rounded">OFF</button>
+      </div>
     </div>
-  </section> -->
+    
+    <div class="flex flex-col items-center mt-4">
+      <img id="lampStatusIcon" src="img/lamp-off.png" class="w-16 mb-2" />
+      <div>
+        <button onclick="setRelay('lampu', 0)" class="bg-green-500 text-white px-3 py-1 rounded">ON</button>
+        <button onclick="setRelay('lampu', 1)" class="bg-red-500 text-white px-3 py-1 rounded">OFF</button>
+      </div>
+    </div>
+    
+
+  </div>
+</section>
+
+
 
   <!-- Harvest Modal -->
   <div id="harvestModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
